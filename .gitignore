@@ -2,4 +2,4 @@ serverPid
 clientPid
 client
 server_sequential
-server_forked
+server_threaded
