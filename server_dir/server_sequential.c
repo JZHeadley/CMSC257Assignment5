@@ -2,6 +2,36 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+// on success return 0
+// on failure return -1
+
+int writeFileToClient(int client, char fileName[50]){
+    printf("writing file to client");
+    FILE *fileRequested;
+    int flag=1;
+    int i;
+    char c;
+    char buffer[50];
+    if((fileRequested = fopen(fileName,"r"))!=0){
+
+        return -1;
+    }
+    while(flag){
+        for(i=0;i<50;i++){
+            if((c=fgetc(fileRequested))==EOF){
+                flag = 0;
+                break;
+            }
+            buffer[i] = c;
+        }
+        if(write( client, buffer, 50)!=50){
+            fclose(fileRequested);
+            return -1;
+        }
+    }
+    fclose(fileRequested);
+    return 0;
+}
 
 int server_operation( void ) {
     int server, client;
@@ -38,34 +68,31 @@ int server_operation( void ) {
         }
 
         printf( "Server new client connection [%s/%d]", inet_ntoa(caddr.sin_addr), caddr.sin_port );
-        if ( read( client, buffer, sizeof(buffer)) != sizeof(buffer) ) {
+
+        if ( read( client, buffer, 50) != 50 ) {
             printf( "Error writing network data [%s]\n", strerror(errno) );
             close(server);
             return( -1 );
         }
 
-        // value = ntohl(value);
-        // strncpy(value,buffer,sizeof(buffer));
+        printf( "Requested file is [%s]\n",buffer );
 
-        printf( "Receivd a value of [%s]\n",buffer );
-
-        //value++;
-        //value = htonl(value);
-
-        if ( write( client, buffer, sizeof(buffer)) != sizeof(buffer) ) {
+        if( writeFileToClient(client, buffer)){
+            //if ( write( client, buffer, 50) != 50 ) {
             printf( "Error writing network data [%s]\n", strerror(errno) );
             close(server);
             return( -1 );
         }
-        printf( "Sent a value of [%d]\n", buffer );
+        //printf( "Sent a value of [%d]\n", buffer );
         close(client); // Close the socket
+        }
+        return ( 0 );
     }
-    return ( 0 );
-}
-int main(int argc, char *argv[]){
-    FILE *file;
-    file = fopen("serverPid","w");
-    fprintf(file,"%i",getpid());
-    fclose(file);
-    server_operation();
-}
+    int main(int argc, char *argv[]){
+        FILE *file;
+        file = fopen("serverPid","w");
+        fprintf(file,"%i",getpid());
+        fclose(file);
+
+        server_operation();
+    }

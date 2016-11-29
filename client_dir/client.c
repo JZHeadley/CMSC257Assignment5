@@ -8,12 +8,10 @@
 
 int client_operation( void ) {
     int socket_fd;
-    // uint32_t value;
     char *value;
     char buffer[50];
     struct sockaddr_in caddr;
     char *ip = "127.0.0.1";
-
 
     caddr.sin_family = AF_INET;
     caddr.sin_port = htons(2172);
@@ -33,21 +31,27 @@ int client_operation( void ) {
         return( -1 );
     }
 
-    value = "asdf";
-    strncpy(buffer,value,sizeof(buffer));
+    int i;
+    for(i=0;i<10;i++){
+        value = "asdf";
 
-    if ( write( socket_fd, buffer, sizeof(buffer)) != sizeof(buffer) ) {
-        printf( "Error writing network data [%s]\n", strerror(errno) );
-        return( -1 );
+        strncpy(buffer,value,50);
+
+        if ( write( socket_fd, buffer, 50) != 50 ) {
+            printf( "Error writing network data [%s]\n", strerror(errno) );
+            return( -1 );
+        }
+
+        printf( "Sent a value of [%s]\n", buffer );
+
+        if ( read( socket_fd, buffer, 50) != 50 ) {
+            printf( "Error reading network data [%s]\n", strerror(errno) );
+            return( -1 );
+        }
+
+        printf( "Receivd a value of [%s]\n", buffer );
+
     }
-
-    printf( "Sent a value of [%s]\n", buffer );
-    if ( read( socket_fd, buffer, sizeof(buffer)) != sizeof(buffer) ) {
-        printf( "Error reading network data [%s]\n", strerror(errno) );
-        return( -1 );
-    }
-
-    printf( "Receivd a value of [%s]\n", buffer );
     close(socket_fd); // Close the socket
     return( 0 );
 
