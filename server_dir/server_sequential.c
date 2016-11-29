@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 // on success return 0
 // on failure return -1
@@ -35,7 +36,7 @@ int writeFileToClient(int client, char fileName[50]){
 
 int server_operation( void ) {
     int server, client;
-    uint32_t /*value,*/ inet_len;
+    uint32_t inet_len;
     char *value;
     char buffer[50];
     struct sockaddr_in saddr, caddr;
@@ -75,7 +76,7 @@ int server_operation( void ) {
             return( -1 );
         }
 
-        printf( "Requested file is [%s]\n",buffer );
+        printf( "\nRequested file is [%s]\n",buffer );
 
         if( writeFileToClient(client, buffer)){
             //if ( write( client, buffer, 50) != 50 ) {
@@ -90,6 +91,7 @@ int server_operation( void ) {
     }
     int main(int argc, char *argv[]){
         FILE *file;
+
         file = fopen("serverPid","w");
         fprintf(file,"%i",getpid());
         fclose(file);

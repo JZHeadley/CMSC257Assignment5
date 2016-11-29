@@ -6,9 +6,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-int client_operation( void ) {
+/*int getFileFromServer(int socket_fd,);*/
+
+int client_operation(char requestedFileName[50]) {
     int socket_fd;
-    char *value;
     char buffer[50];
     struct sockaddr_in caddr;
     char *ip = "127.0.0.1";
@@ -31,27 +32,23 @@ int client_operation( void ) {
         return( -1 );
     }
 
-    int i;
-    for(i=0;i<10;i++){
-        value = "asdf";
+    strncpy(buffer,requestedFileName,50);
 
-        strncpy(buffer,value,50);
-
-        if ( write( socket_fd, buffer, 50) != 50 ) {
-            printf( "Error writing network data [%s]\n", strerror(errno) );
-            return( -1 );
-        }
-
-        printf( "Sent a value of [%s]\n", buffer );
-
-        if ( read( socket_fd, buffer, 50) != 50 ) {
-            printf( "Error reading network data [%s]\n", strerror(errno) );
-            return( -1 );
-        }
-
-        printf( "Receivd a value of [%s]\n", buffer );
-
+    if ( write( socket_fd, buffer, 50) != 50 ) {
+        printf( "Error writing network data [%s]\n", strerror(errno) );
+        return( -1 );
     }
+
+    printf( "Sent a value of [%s]\n", buffer );
+
+    if ( read( socket_fd, buffer, 50) != 50 ) {
+        printf( "Error reading network data [%s]\n", strerror(errno) );
+        return( -1 );
+    }
+
+    printf( "Receivd a value of [%s]\n", buffer );
+
+
     close(socket_fd); // Close the socket
     return( 0 );
 
@@ -64,7 +61,12 @@ int main(int argc, char *argv[]){
     file = fopen("clientPid","w");
     fprintf(file,"%i",getpid());
     fclose(file);
-
-    client_operation();
+    if(argc==1){
+        return -1;
+    } else{
+        client_operation(argv[1]);
+    }
+    remove("clientPid");
 }
+
 
