@@ -7,17 +7,25 @@
 // on failure return -1
 
 int writeFileToClient(int client, char fileName[50]){
-    printf("writing file to client");
-    FILE *fileRequested;
+    printf("writing file to client\n");
+    FILE *fileRequested=NULL;
     int flag=1;
     int i;
     char c;
     char buffer[50];
-    if((fileRequested = fopen(fileName,"r"))!=0){
+    setbuf(stdout, NULL);
 
-        return -1;
-    }
-    while(flag){
+    printf("opening file\n");
+    fileRequested=fopen(fileName,"r");
+
+    /*if((fileRequested = fopen(fileName,"r"))!=0){*/
+    /*printf("could not find file in server dir");*/
+    /*return -1;*/
+    /*}*/
+
+    while(flag == 1){
+        for(i=0;i<50;i++)
+            buffer[i]=0;
         for(i=0;i<50;i++){
             if((c=fgetc(fileRequested))==EOF){
                 flag = 0;
@@ -25,11 +33,26 @@ int writeFileToClient(int client, char fileName[50]){
             }
             buffer[i] = c;
         }
-        if(write( client, buffer, 50)!=50){
+
+        printf("%s",buffer);
+
+        if (flag==0){
+            printf("reached the end of the file\n");
+        }
+        if(write( client, buffer, 50) != 50){
+            printf("invalid write\n");
             fclose(fileRequested);
             return -1;
         }
     }
+
+    printf("writing terminal string\n");
+    for(i=0;i<50;i++)
+        buffer[i]=0;
+
+    /*buffer[0]='c';buffer[1]='m';buffer[2]='s';buffer[3]='c';buffer[4]='2';buffer[5]='5';buffer[6]='7';buffer[7]='\0';*/
+
+    write(client,"cmsc257",sizeof("cmsc257"));
     fclose(fileRequested);
     return 0;
 }
@@ -78,13 +101,12 @@ int server_operation( void ) {
 
         printf( "\nRequested file is [%s]\n",buffer );
 
-        if( writeFileToClient(client, buffer)){
+        if( writeFileToClient(client, buffer) !=0){
             //if ( write( client, buffer, 50) != 50 ) {
             printf( "Error writing network data [%s]\n", strerror(errno) );
             close(server);
             return( -1 );
         }
-        //printf( "Sent a value of [%d]\n", buffer );
         close(client); // Close the socket
         }
         return ( 0 );

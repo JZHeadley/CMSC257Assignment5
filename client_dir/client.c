@@ -7,6 +7,29 @@
 #include <sys/types.h>
 
 /*int getFileFromServer(int socket_fd,);*/
+int handleServerResponse(int socket_fd, char *buffer, int sizeOfBuffer, char *requestedFileName){
+    int i;
+    FILE *serverResponseFile;
+    serverResponseFile = fopen(requestedFileName,"w"); // might not handle binary and might need to be wb instead
+
+    while(1){
+
+        if ( read( socket_fd, buffer, 50) != 50 ) {
+            if(strstr(buffer,"cmsc257")){
+                return 1;
+            }
+            printf( "Error reading network data: %s with [%s]\n", buffer, strerror(errno) );
+            return( -1 );
+        }
+        printf("%s",buffer);
+        for(i=0;i<sizeOfBuffer;i++){
+            fputc(buffer[i],serverResponseFile);
+        }
+    }
+    // printf( "Receivd a value of [%s]\n", buffer );
+
+    return 0;
+}
 
 int client_operation(char requestedFileName[50]) {
     int socket_fd;
@@ -32,22 +55,13 @@ int client_operation(char requestedFileName[50]) {
         return( -1 );
     }
 
-    strncpy(buffer,requestedFileName,50);
-
-    if ( write( socket_fd, buffer, 50) != 50 ) {
+    if ( write( socket_fd, requestedFileName, 50) != 50 ) {
         printf( "Error writing network data [%s]\n", strerror(errno) );
         return( -1 );
     }
+    printf( "Requesting a file named: [%s]\n",requestedFileName );
 
-    printf( "Sent a value of [%s]\n", buffer );
-
-    if ( read( socket_fd, buffer, 50) != 50 ) {
-        printf( "Error reading network data [%s]\n", strerror(errno) );
-        return( -1 );
-    }
-
-    printf( "Receivd a value of [%s]\n", buffer );
-
+    handleServerResponse(socket_fd,buffer,sizeof(buffer),requestedFileName);
 
     close(socket_fd); // Close the socket
     return( 0 );
