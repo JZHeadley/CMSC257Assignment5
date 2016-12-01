@@ -63,7 +63,7 @@ int server_operation( void ) {
     char buffer[50];
     struct sockaddr_in saddr, caddr;
     saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(2173);
+    saddr.sin_port = htons(2172);
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server = socket(PF_INET, SOCK_STREAM, 0);
 

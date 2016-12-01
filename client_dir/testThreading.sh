@@ -1,7 +1,5 @@
 #!/bin/bash
-../client myfile &
-
-../client 500MbLorIpsum &
+../client newfile &
 
 ../client loripsum.txt &
 

@@ -4,9 +4,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+
+int flag=0;
+int status=0;
+int server, client;
 
 void signal_handler(int signNum){
-
+    if (status==0) {
+        close(server);
+        raise(SIGKILL);
+    } else{
+        flag=1;
+    }
 }
 
 int writeFileToClient(int client, char fileName[50]){
@@ -50,12 +61,11 @@ int writeFileToClient(int client, char fileName[50]){
 }
 
 int server_operation( void ) {
-    int server, client;
     uint32_t inet_len;
     char buffer[50];
     struct sockaddr_in saddr, caddr;
     saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(2173);
+    saddr.sin_port = htons(2172);
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server = socket(PF_INET, SOCK_STREAM, 0);
     pid_t childPid;
@@ -75,40 +85,41 @@ int server_operation( void ) {
         return( -1 );
     }
 
-    while ( 1 ) {
+    while ( flag==0 ) {
         inet_len = sizeof(caddr);
         if ( (client = accept( server, (struct sockaddr *)&caddr, &inet_len )) == -1 ) {
             printf( "Error on client accept [%s]\n", strerror(errno) );
             close(server);
             return( -1 );
         }
+        status=1;
         printf("Creating child\n");
         childCount++;
         childPid = fork();
 
-        printf( "Server new client connection [%s/%d]", inet_ntoa(caddr.sin_addr), caddr.sin_port );
-
-        if ( read( client, buffer, 50) != 50 ) {
-            printf( "Error writing network data [%s]\n", strerror(errno) );
-            close(server);
-            return( -1 );
-        }
-
-        printf( "\nRequested file is [%s]\n",buffer );
-
-        if( writeFileToClient(client, buffer) !=0){
-            printf( "Error writing network data [%s]\n", strerror(errno) );
-            close(server);
-            return( -1 );
-        }
 
         if (childPid == 0){
+            printf( "Server new client connection [%s/%d]", inet_ntoa(caddr.sin_addr), caddr.sin_port );
+
+            if ( read( client, buffer, 50) != 50 ) {
+                printf( "Error writing network data [%s]\n", strerror(errno) );
+                close(server);
+                return( -1 );
+            }
+
+            printf( "\nRequested file is [%s]\n",buffer );
+
+            if( writeFileToClient(client, buffer) !=0){
+                printf( "Error writing network data [%s]\n", strerror(errno) );
+                close(server);
+                return( -1 );
+            }
             printf("closing client connection\n");
             close(client); // Close the socket
             exit(0);
         }
+        status=0;
 
-        printf("closing client connection\n");
         close(client); // Close the socket
     }
 
