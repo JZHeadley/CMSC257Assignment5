@@ -30,11 +30,12 @@ int writeFileToClient(int client, char fileName[50]){
     setbuf(stdout, NULL);
 
     printf("opening file\n");
-    fileRequested=fopen(fileName,"r");
+    fileRequested=fopen(fileName,"rb");
 
     while(flag == 1){
         for(i=0;i<50;i++)
-            buffer[i]=0;
+            buffer[i]=' ';
+
         for(i=0;i<50;i++){
             if((c=fgetc(fileRequested))==EOF){
                 flag = 0;

@@ -10,7 +10,7 @@
 int handleServerResponse(int socket_fd, char *buffer, int sizeOfBuffer, char *requestedFileName){
     int i;
     FILE *serverResponseFile;
-    serverResponseFile = fopen(requestedFileName,"wb"); // might not handle binary and might need to be wb instead
+    serverResponseFile = fopen(requestedFileName,"w"); // might not handle binary and might need to be wb instead
 
     while(1){
 
@@ -82,6 +82,5 @@ int main(int argc, char *argv[]){
     }
     remove("clientPid");
 }
-
 
 

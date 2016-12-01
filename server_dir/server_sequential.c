@@ -18,14 +18,9 @@ int writeFileToClient(int client, char fileName[50]){
     printf("opening file\n");
     fileRequested=fopen(fileName,"r");
 
-    /*if((fileRequested = fopen(fileName,"r"))!=0){*/
-    /*printf("could not find file in server dir");*/
-    /*return -1;*/
-    /*}*/
-
     while(flag == 1){
         for(i=0;i<50;i++)
-            buffer[i]=0;
+            buffer[i]=' ';
         for(i=0;i<50;i++){
             if((c=fgetc(fileRequested))==EOF){
                 flag = 0;
