@@ -12,4 +12,4 @@ client : client_dir/client.c
 	gcc $^ -g -o $@
 
 clean : 
-	rm -f client server_threaded server_sequential client_dir/asdf
+	rm -f client server_threaded server_sequential client_dir/asdf client_dir/loripsum.txt client_dir/500MbLorIpsum client_dir/myfile

@@ -38,7 +38,7 @@ int client_operation(char requestedFileName[50]) {
     char *ip = "127.0.0.1";
 
     caddr.sin_family = AF_INET;
-    caddr.sin_port = htons(2172);
+    caddr.sin_port = htons(2173);
 
     if ( inet_aton(ip, &caddr.sin_addr) == 0 ) {
         return( -1 );

@@ -34,10 +34,10 @@ int writeFileToClient(int client, char fileName[50]){
             buffer[i] = c;
         }
 
-        printf("%s",buffer);
+        //printf("%s",buffer);
 
         if (flag==0){
-            printf("reached the end of the file\n");
+            /*printf("reached the end of the file\n");*/
         }
         if(write( client, buffer, 50) != 50){
             printf("invalid write\n");
@@ -46,13 +46,12 @@ int writeFileToClient(int client, char fileName[50]){
         }
     }
 
-    printf("writing terminal string\n");
+    /*printf("writing terminal string\n");*/
     for(i=0;i<50;i++)
         buffer[i]=0;
 
-    /*buffer[0]='c';buffer[1]='m';buffer[2]='s';buffer[3]='c';buffer[4]='2';buffer[5]='5';buffer[6]='7';buffer[7]='\0';*/
-
     write(client,"cmsc257",sizeof("cmsc257"));
+    printf("closing file\n");
     fclose(fileRequested);
     return 0;
 }
@@ -64,7 +63,7 @@ int server_operation( void ) {
     char buffer[50];
     struct sockaddr_in saddr, caddr;
     saddr.sin_family = AF_INET;
-    saddr.sin_port = htons(2172);
+    saddr.sin_port = htons(2173);
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -102,21 +101,22 @@ int server_operation( void ) {
         printf( "\nRequested file is [%s]\n",buffer );
 
         if( writeFileToClient(client, buffer) !=0){
-            //if ( write( client, buffer, 50) != 50 ) {
             printf( "Error writing network data [%s]\n", strerror(errno) );
             close(server);
             return( -1 );
         }
+        printf("closing client connection");
         close(client); // Close the socket
-        }
-        return ( 0 );
     }
-    int main(int argc, char *argv[]){
-        FILE *file;
+    return ( 0 );
+}
 
-        file = fopen("serverPid","w");
-        fprintf(file,"%i",getpid());
-        fclose(file);
+int main(int argc, char *argv[]){
+    FILE *file;
 
-        server_operation();
-    }
+    file = fopen("serverPid","w");
+    fprintf(file,"%i",getpid());
+    fclose(file);
+
+    server_operation();
+}
